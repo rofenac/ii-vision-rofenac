@@ -2,3 +2,5 @@ __pycache__/
 venv/
 videos/
 *.a2m
+transcoder/data/
+*.mp4

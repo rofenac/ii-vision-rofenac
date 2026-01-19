@@ -66,6 +66,153 @@ Before you can run the transcoder you need to generate the data files it require
 
 This is a one-time setup.  It takes about 90 minutes on my machine.
 
+## Setup and streaming guide (from scratch)
+
+This section walks through a clean setup, transcoding a video, and streaming it to an Apple II (or emulator). It assumes a Unix-like environment (Linux/macOS).
+
+### Prerequisites
+
+- Python 3.10 (required by llvmlite/numba)
+- ffmpeg (audio/video decoding)
+- bmp2dhr/b2d binary (frame conversion for HGR/DHGR)
+- Git
+
+Optional:
+- Apple II emulator with Uthernet II support (AppleWin/Ample) or real hardware
+
+#### Install system dependencies
+
+Linux (Debian/Ubuntu):
+```
+sudo apt-get update
+sudo apt-get install python3.10 python3.10-venv ffmpeg
+```
+
+macOS (Homebrew):
+```
+brew install python@3.10 ffmpeg
+```
+
+### Clone and enter the repo
+
+```
+git clone https://github.com/<your-fork>/ii-vision.git
+cd ii-vision
+```
+
+If you already have the repo, just `cd` into it.
+
+### Create and activate a Python 3.10 venv
+
+```
+python3.10 -m venv venv
+source venv/bin/activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+### Generate transcoder data tables (one-time)
+
+This takes a long time (~60-90 minutes) and creates the data in `transcoder/data/`.
+
+```
+python transcoder/make_data_tables.py
+```
+
+### Install bmp2dhr / b2d
+
+The transcoder uses bmp2dhr to convert each frame into Apple II HGR/DHGR screen memory.
+The upstream repo now provides prebuilt binaries (b2d). Download the release for your OS/arch.
+
+After downloading the binary:
+```
+chmod +x /path/to/b2d
+```
+
+Then either:
+- Put it on your PATH as `b2d` or `bmp2dhr`, or
+- Export an explicit path for this repo:
+
+```
+export BMP2DHR=/path/to/b2d
+```
+
+The transcoder will check, in order:
+1) `BMP2DHR`
+2) `/usr/local/bin/bmp2dhr`
+3) `bmp2dhr` on PATH
+4) `b2d` on PATH
+
+### Transcode a video
+
+From the repo root:
+
+```
+python transcoder/main.py "transcoder/your_video.mp4" --output "transcoder/your_video.a2m"
+```
+
+Default settings:
+- Video mode: DHGR (Double Hi-Res)
+- Palette: NTSC
+- Audio bitrate: 14700 Hz
+- Frame skip: every 2 input frames
+
+Useful flags:
+
+- Lower effective frame rate (better per-frame quality):
+  ```
+  --every_n_video_frames 3
+  ```
+- Use single HGR instead of DHGR:
+  ```
+  --video_mode HGR
+  ```
+- Faster audio playback on //gs 2.8MHz:
+  ```
+  --audio_bitrate 22500
+  ```
+- Cap output size:
+  ```
+  --max_output_mb 100
+  ```
+
+### Serve the video stream
+
+The server sends the entire file over TCP on port 1977.
+
+```
+python server/server.py transcoder/your_video.a2m
+```
+
+You should see a "Sending N bytes" message once the client connects.
+
+### Play on Apple II / emulator
+
+Notes:
+- The player expects a fixed IP/port and Uthernet II in slot 1.
+- If you are using an emulator, make sure Uthernet II is enabled.
+- Keep the server running while the client connects.
+
+### Troubleshooting
+
+#### audioread.exceptions.NoBackendError
+Install ffmpeg and try again.
+
+#### FileNotFoundError: bmp2dhr not found
+Make sure the b2d/bmp2dhr binary exists and is executable, or set:
+```
+export BMP2DHR=/path/to/b2d
+```
+
+#### Permission denied running b2d
+Ensure the binary is executable:
+```
+chmod +x /path/to/b2d
+```
+
+#### Slow or very large output
+Try `--every_n_video_frames 3` or `4`, or reduce video length.
+
 ## Sample videos
 
 Some sample videos are available [here](https://www.dropbox.com/sh/kq2ej63smrzruwk/AADZSaqbNuTwAfnPWT6r9TJra?dl=0) for
@@ -240,4 +387,3 @@ Currently the player will attempt to connect to the server and stream whatever v
 ### Playback controls
 
 Seeking in the stream would require more work (since currently there is no communication in the Apple II --> server direction).  Also since the encoding is not real-time, this would either require significant optimization (perhaps rewriting at least the critical path of the encoder in C), or living with the resulting "video tearing" that would result from switching to a random place in the video stream.
-
