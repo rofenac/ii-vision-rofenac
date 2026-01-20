@@ -1,9 +1,9 @@
 version	major=2,minor=0
 info	csym=0,file=600,lib=1,line=1418,mod=2,scope=2,seg=9,span=14331,sym=2344,type=8
-file	id=0,name="main.s",size=33654,mtime=0x63C69311,mod=0
-file	id=1,name="/usr/local/share/cc65/asminc/apple2.inc",size=2541,mtime=0x5ED2ADF3,mod=0
+file	id=0,name="main.s",size=33654,mtime=0x696E9279,mod=0
+file	id=1,name="/usr/share/cc65/asminc/apple2.inc",size=2541,mtime=0x6813AD96,mod=0
 file	id=2,name="apple2/exehdr.s",size=1848,mtime=0x5ED2ADF3,mod=1
-lib	id=0,name="/usr/local/share/cc65/lib/apple2.lib"
+lib	id=0,name="/usr/share/cc65/lib/apple2.lib"
 line	id=0,file=0,line=1235,span=4262
 line	id=1,file=0,line=979,type=2,count=2,span=13831+13390+12949+12508+12067+11626+11185+10744+10303+9862+9421+8980+8539+8098+7657+7216+6775+6334+5893+5452+5011+4570+4129+3688+3247+2806+2246+1805+1364+923+482
 line	id=2,file=1,line=60

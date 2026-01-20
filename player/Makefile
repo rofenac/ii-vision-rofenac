@@ -62,11 +62,11 @@ SRCDIRS+=
 # 	/usr/local/lib/cc65
 # If you are using cc65 v2.17, the default is:
 # 	/usr/local/share/cc65
-#    export CC65_HOME := /path/to/your/cc65/directory
+    export CC65_HOME := /usr/bin/
 #
 # If the path to the cc65 binaries is not correct, uncomment this
 # line and change it:
-#    CC65_BIN = /usr/local/bin
+    CC65_BIN = /usr/bin/
 
 # If you want to add arguments to the compile commandline, add them
 # to this variable:

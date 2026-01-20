@@ -5,6 +5,7 @@ import queue
 import subprocess
 import threading
 from typing import Iterator
+import shutil
 
 import numpy as np
 import skvideo.io
@@ -30,6 +31,7 @@ class FileFrameGrabber(FrameGrabber):
 
         self.filename = filename  # type: str
         self.palette = palette  # type: Palette
+        self._bmp2dhr = self._resolve_bmp2dhr()
         self._reader = skvideo.io.FFmpegReader(filename)
 
         # Compute frame rate from input video
@@ -52,6 +54,25 @@ class FileFrameGrabber(FrameGrabber):
 
     def _palette_arg(self) -> str:
         return "P%d" % self.palette.value
+
+    @staticmethod
+    def _resolve_bmp2dhr() -> str:
+        env_path = os.environ.get("BMP2DHR")
+        if env_path and os.path.isfile(env_path) and os.access(env_path, os.X_OK):
+            return env_path
+
+        default_path = "/usr/local/bin/bmp2dhr"
+        if os.path.isfile(default_path) and os.access(default_path, os.X_OK):
+            return default_path
+
+        for name in ("bmp2dhr", "b2d"):
+            found = shutil.which(name)
+            if found:
+                return found
+
+        raise FileNotFoundError(
+            "bmp2dhr/b2d not found. Set BMP2DHR or add bmp2dhr/b2d to PATH."
+        )
 
     def frames(self) -> Iterator[screen.MemoryMap]:
         """Encode frame to (D)HGR using bmp2dhr.
@@ -76,7 +97,7 @@ class FileFrameGrabber(FrameGrabber):
                 _frame.save(bmpfile)
 
                 subprocess.call([
-                    "/usr/local/bin/bmp2dhr", bmpfile, "hgr",
+                    self._bmp2dhr, bmpfile, "hgr",
                     self._palette_arg(),
                     "D9"  # Buckels dither
                 ])
@@ -101,7 +122,7 @@ class FileFrameGrabber(FrameGrabber):
                 _frame.save(bmpfile)
 
                 subprocess.call([
-                    "/usr/local/bin/bmp2dhr", bmpfile, "dhgr",  # "v",
+                    self._bmp2dhr, bmpfile, "dhgr",  # "v",
                     self._palette_arg(),
                     "A",  # Output separate .BIN and .AUX files
                     "D9"  # Buckels dither

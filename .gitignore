@@ -4,3 +4,4 @@ videos/
 *.a2m
 transcoder/data/
 *.mp4
+.python-version

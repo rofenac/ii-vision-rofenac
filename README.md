@@ -346,7 +346,7 @@ The video player currently has hard-coded configuration (i.e. not configurable a
 
 Supporting configurable IP addresses should be relatively straightforward to implement, but configuring the slot requires patching many addresses in the player binary and would take additional effort.
 
-For now you'll need to build this yourself.  The makefile in the player/ directory uses the excellent [Apple2BuildPipeline](https://github.com/jeremysrand/Apple2BuildPipeline) from Jeremy S. Rand, which requires Mac OS X.
+For now you'll need to build this yourself.  The makefile in the player/ directory uses the excellent [Apple2BuildPipeline](https://github.com/jeremysrand/Apple2BuildPipeline) from Jeremy S. Rand, which requires Mac OS X. You'll also need a Java JRE installed.
 
 ### Tight coupling of player and video format
 
